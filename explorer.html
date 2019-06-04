@@ -1,0 +1,31 @@
+<head>
+    <script src="https://cdn01.boxcdn.net/platform/elements/10.1.0/en-US/explorer.js"></script>
+    <link rel="stylesheet" href="https://cdn01.boxcdn.net/platform/elements/10.1.0/en-US/explorer.css" />
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script>
+        setTimeout(() => {
+            const hatList = document.getElementsByClassName("error-empty-state");
+            const hat = Array.from(hatList)[0];
+            console.log(hat)
+
+            $(hat).draggable();
+            
+        }, 2000)
+
+    </script>
+
+</head>
+
+<html>
+    <div class="explorer-container">
+
+    </div>
+</html>
+<script>
+        const explorer = new Box.ContentExplorer();
+        explorer.show('34654745', '325346', {
+            containter: '.explorer-container'
+        })
+ </script>
