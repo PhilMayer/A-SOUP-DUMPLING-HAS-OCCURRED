@@ -1,19 +1,79 @@
 <head>
+        <style> 
+           
+            .gamepiece {
+                position: absolute;
+                height: 30px;
+                width: 30px;
+            }
+            
+            /* Standard syntax */
+            @keyframes example {
+                from {top: 93px}
+                to {top: 400px;}
+            }
+        </style>
+
     <script src="https://cdn01.boxcdn.net/platform/elements/10.1.0/en-US/explorer.js"></script>
     <link rel="stylesheet" href="https://cdn01.boxcdn.net/platform/elements/10.1.0/en-US/explorer.css" />
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script>
+        const ids = [];
         setTimeout(() => {
             const hatList = document.getElementsByClassName("error-empty-state");
             const hat = Array.from(hatList)[0];
             console.log(hat)
 
             $(hat).draggable();
+            $(hat).mousedown(() => {
+                // const gamePiece = $( "span:contains('Error')" )[1];
+                // $(gamePiece).addClass("gamePiece");
+                
+                setInterval(() => {
+                    addPiece(hat);
+                }, 500)
+
+                setInterval(() => {
+                    const doomedPiece = ids[Math.floor(Math.random()*ids.length)];;
+                    const toRemove = $('#' + doomedPiece)[0];
+                    toRemove.remove();
+                }, 2000)
+            })
             
         }, 2000)
 
+        function addPiece(hat) {
+            const id = Math.random().toString().replace('0.', '') ;
+            ids.push(id);
+
+            const top = Math.floor(Math.random() * Math.floor(700))
+            const right = Math.floor(Math.random() * Math.floor(1400))
+
+            const appendage = `<img id=${id} style='top:${top}; right:${right}' class='gamepiece' src='./dump.png'>`
+            $(".be-sub-header").append(appendage)
+            const newPiece = $('#' + id)[0];
+
+            setInterval(() => {
+                const collision = isCollide(newPiece, hat);
+                if (collision) $(newPiece).remove();
+                console.log(collision);
+            }, 200)
+
+           
+        }
+
+        function isCollide(gamePiece, hat) {
+            var aRect = gamePiece.getBoundingClientRect();
+            var bRect = hat.getBoundingClientRect();
+            return !(
+                ((aRect.top + aRect.height) < (bRect.top)) ||
+                (aRect.top > (bRect.top + bRect.height)) ||
+                ((aRect.left + aRect.width) < bRect.left) ||
+                (aRect.left > (bRect.left + bRect.width))
+            );
+        }
     </script>
 
 </head>
