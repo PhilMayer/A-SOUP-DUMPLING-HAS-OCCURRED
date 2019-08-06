@@ -1,4 +1,6 @@
 <head>
+        <link href="https://fonts.googleapis.com/css?family=Indie+Flower&display=swap" rel="stylesheet">
+
         <style> 
            
             .gamepiece {
@@ -6,11 +8,43 @@
                 height: 30px;
                 width: 30px;
             }
-            
-            /* Standard syntax */
-            @keyframes example {
-                from {top: 93px}
-                to {top: 400px;}
+
+            .scoreBoard {
+                color: #0061d5;
+                font-weight: bold;
+                font-size: 30px;
+                margin-right: 40px;
+            }
+
+            .start-message {
+                position: absolute;
+                right: 430px;
+                top: 200px;
+                font-size: 30px;
+                color: rgb(204, 38, 38);
+            }
+
+            .lose-message {
+                position: absolute;
+                right: 550px;
+                top: 200px;
+                font-size: 30px;
+                color: red;
+            }
+
+            .win-message {
+                position: absolute;
+                right: 500px;
+                top: 200px;
+                font-size: 30px;
+                color: rgb(51, 165, 51);
+            }
+
+            .timer {
+                position: absolute;
+                right: 700px;
+                font-size: 30px;
+                color:rgb(252, 54, 54)
             }
         </style>
 
@@ -21,57 +55,109 @@
 
     <script>
         const ids = [];
+        let score = 0;
+        const TO_WIN = 12;
+        const SECONDS = 10;
+
         setTimeout(() => {
             const hatList = document.getElementsByClassName("error-empty-state");
             const hat = Array.from(hatList)[0];
-            console.log(hat)
-
             $(hat).draggable();
+
+            const fart = '<audio id="fart"><source src="./fart.mp3"></audio>';
+            $(".be-sub-header").append(fart);
+
             $(hat).mousedown(() => {
-                // const gamePiece = $( "span:contains('Error')" )[1];
-                // $(gamePiece).addClass("gamePiece");
-                
+                displayScore();
+                startTimer();
+
+                // Add pieces to board
                 setInterval(() => {
                     addPiece(hat);
                 }, 500)
 
+                // Remove pieces at random
                 setInterval(() => {
                     const doomedPiece = ids[Math.floor(Math.random()*ids.length)];;
                     const toRemove = $('#' + doomedPiece)[0];
                     toRemove.remove();
                 }, 2000)
             })
-            
-        }, 2000)
+        }, 1000)
 
         function addPiece(hat) {
+            // Create unique piece ID
             const id = Math.random().toString().replace('0.', '') ;
             ids.push(id);
 
-            const top = Math.floor(Math.random() * Math.floor(700))
+            // Coordinates of new piece 
+            const top = Math.floor(Math.random() * Math.floor(700) + 100)
             const right = Math.floor(Math.random() * Math.floor(1400))
 
+            // Add new piece
             const appendage = `<img id=${id} style='top:${top}; right:${right}' class='gamepiece' src='./dump.png'>`
             $(".be-sub-header").append(appendage)
             const newPiece = $('#' + id)[0];
 
+            // Detect collisions every 2 millisenconds 
             setInterval(() => {
                 const collision = isCollide(newPiece, hat);
-                if (collision) $(newPiece).remove();
-                console.log(collision);
+                if (collision) {
+                    $(newPiece).remove();
+                    score += 1;
+                    $(".scoreBoard").html(`Score: ${score}`)
+                    $("#fart")[0].play();
+                }
             }, 200)
+        }
 
-           
+        function displayScore() {
+            const scoreBoard = `<div class='scoreBoard'>Score: ${score}</div>`
+            $(".be-sub-header").append(scoreBoard);
+
+            const startMessage = `<div style="font-family: 'Indie Flower', cursive;" class="start-message">Collect ${TO_WIN} dumplings before time runs out!!</div>`
+            $(".be-sub-header").append(startMessage);
+            setTimeout(() => {
+                $(".start-message").remove();
+            }, 1500)
+        }
+
+        function endGame() {
+            if (score >= TO_WIN) {
+                const winMessage = `<div class="win-message" style="font-family: 'Indie Flower', cursive;">You win! But so many carbs...</div>`
+                $(".be-sub-header").append(winMessage);
+            } else {
+                const loseMessage = `<div class="lose-message" style="font-family: 'Indie Flower', cursive;">You lose. Hardly ideal</div>`
+                $(".be-sub-header").append(loseMessage);
+            }
+        }
+
+        function startTimer() {
+            let time = SECONDS;
+            const timer = `<div class="timer">${time}</div>`
+            $(".be-sub-header").append(timer);
+
+            const timerRunning = setInterval(() => {
+                time -= 1;
+                $(".timer").html(`${time}`);
+                if (time === 0) {
+                    clearInterval(timerRunning);
+                    endGame();
+                }
+            }, 1000)
+
         }
 
         function isCollide(gamePiece, hat) {
+            // Get rectangles that enclose gamepieces
             var aRect = gamePiece.getBoundingClientRect();
             var bRect = hat.getBoundingClientRect();
+            
             return !(
-                ((aRect.top + aRect.height) < (bRect.top)) ||
-                (aRect.top > (bRect.top + bRect.height)) ||
-                ((aRect.left + aRect.width) < bRect.left) ||
-                (aRect.left > (bRect.left + bRect.width))
+                ((aRect.top + aRect.height - 40) < (bRect.top)) ||
+                (aRect.top > (bRect.top + bRect.height - 50)) ||
+                ((aRect.left + aRect.width - 40) < bRect.left) ||
+                (aRect.left > (bRect.left + bRect.width - 30))
             );
         }
     </script>
